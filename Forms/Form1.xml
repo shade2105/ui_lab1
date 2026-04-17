@@ -1,0 +1,8 @@
+<Questions title="WPF Test">
+  <Question number="1">
+    <Text>Ви любите Windows Forms?</Text>
+  </Question>
+  <Question number="2">
+    <Text>Ви любите Windows Presentation Foundation?</Text>
+  </Question>
+ </Questions>
