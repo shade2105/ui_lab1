@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -18,16 +18,18 @@ using System.Xml.Linq;
 
 namespace lab1
 {
+    // Клас Question має властивості number та text - номер та текст питання.   
     public class Question
     {
         public int Number { get; set; }
         public string Text { get; set; }
-    }
-    
+    }  
+
     public partial class MainWindow : Window
     {
-        private List<Question> _questions;
-        private List<string> _answers = new List<string>();
+        // Оголошення змінних.
+        private List<Question>_questions;
+        private List <string>_answers = new List<string>();
         private bool _started = false;
         private int _index = 0;
         private int size = 0;
@@ -35,13 +37,14 @@ namespace lab1
         private string title;
         public MainWindow()
         {
+	// шлях до питань.
             string path = "Forms/Form1.xml";
-
+	// читання xml в title та questions.
             try
             {
                 XDocument doc = XDocument.Load(path);
                 title = (string)doc.Root.Attribute("title");
-                List<Question> questions = doc.Root
+                List <Question>questions = doc.Root
                     .Elements("Question")
                     .Select(q => new Question
                     {
@@ -51,8 +54,8 @@ namespace lab1
                     .ToList();
                 InitializeComponent();
                 _questions = questions;
-                size = _questions.Count;
-                checkName();
+                size = _questions.Count;	// кількість питань
+                checkName();		// перейти до запиту імені.
             }
             catch (Exception ex)
             {
@@ -60,22 +63,18 @@ namespace lab1
                 Application.Current.Shutdown();
                 return;
             }
-
-
-            
-
-
         }
 
         public void checkName()
         {
-            Question_Name.Text = title;
-            Question_Text.Text = "Введіть ім'я";
-            Answer.Text = "";
-            Submit.Content = "Почати";
+            Question_Name.Text = title;			// назва форми опитування.
+            Question_Text.Text = "Введіть ім'я";	// текст питання.
+            Answer.Text = "";				// очищення текстового поля.
+            Submit.Content = "Почати";			// зміна тексту кнопки.
         }
 
-        public void StartSurvey(List<Question> list)
+        
+         public void StartSurvey(List <Question>list) // початок опитування.
         {
             Question_Name.HorizontalAlignment = HorizontalAlignment.Left;
             Question_Text.HorizontalAlignment = HorizontalAlignment.Left;
@@ -90,14 +89,13 @@ namespace lab1
             Submit.HorizontalAlignment = HorizontalAlignment.Left;
             Submit.Margin = new Thickness(20, 0, 200, 10);
             
-
             _index = 0;     
-            ShowQuestion();
+            ShowQuestion();	// показ питань.
         }
 
         private void ShowQuestion()
         {
-            if (_index >= size)
+            if (_index >= size)	// перевірка на кінець опитування
             {
                 Question_Name.Visibility = Visibility.Collapsed;
                 Question_Text.Visibility = Visibility.Collapsed;
@@ -116,24 +114,25 @@ namespace lab1
                 return;
             }
 
-            var q = _questions[_index];
+            var q = _questions[_index];	// отримання питання за індексом
 
-            Question_Name.Text = $"Питання {q.Number}/{size}";
-            Question_Text.Text = q.Text;
+            Question_Name.Text = $"Питання {q.Number}/{size}"; // номер питання.
+            Question_Text.Text = q.Text;     // текст питання.
             Answer.Text = "";
             Submit.Content = "Далі";
         }
-        private void SaveAnswer()
+        private void SaveAnswer()	// зберігання відповідей у файл.
         {
             string folder = "Answers";
 
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
-
-            var files = Directory.GetFiles(folder, "answer*.xml");
+	
+	//перевірка існуючих відповідей
+            var files = Directory.GetFiles(folder, "answer*.xml");  
 
             int maxIndex = 0;
-
+	// цикл для знаходження останнього індексу answer{n}.xml
             foreach (var file in files)
             {
                 string name = System.IO.Path.GetFileNameWithoutExtension(file); // answer1
@@ -164,26 +163,26 @@ namespace lab1
             doc.Save($"Answers/Answers{maxIndex + 1}.xml");
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void Button_Click(object sender, RoutedEventArgs e) // обробка кнопки.
         {
-            if (!_started)
+            if (!_started)	// якщо опитування не почалося, записати ім’я та почати.
             {
                 username = Answer.Text;
                 _started = true;
                 StartSurvey(_questions);
                 return;
             }         
-            if (_index >= _questions.Count)
+	// якщо опитування завершено, зберегти та вийти.
+            if (_index >= _questions.Count)  
             {
                 SaveAnswer();
                 Application.Current.Shutdown();
                 return;
             }
+	// запис відповідей у змінну для подальшого запису в файл.
             _answers.Add(Answer.Text);
             _index++;
-            ShowQuestion();
-            
+            ShowQuestion();         
         }
-
     }
 }
